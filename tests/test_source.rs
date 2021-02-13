@@ -1,8 +1,8 @@
 #![deny(clippy::all, clippy::pedantic)]
 
-use std::error::Error as StdError;
-use std::io;
-use thiserror::Error;
+use core2::error::Error as StdError;
+use core2::io;
+use thiserror_core2::Error;
 
 #[derive(Error, Debug)]
 #[error("implicit source")]

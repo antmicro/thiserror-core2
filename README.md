@@ -23,7 +23,7 @@ thiserror = "1.0"
 ## Example
 
 ```rust
-use thiserror::Error;
+use thiserror_core2::Error;
 
 #[derive(Error, Debug)]
 pub enum DataStoreError {

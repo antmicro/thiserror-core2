@@ -1,7 +1,7 @@
 #![deny(clippy::all, clippy::pedantic)]
 
-use std::fmt::Display;
-use thiserror::Error;
+use core::fmt::Display;
+use thiserror_core2::Error;
 
 fn assert<T: Display>(expected: &str, value: T) {
     assert_eq!(expected, value.to_string());

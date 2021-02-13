@@ -20,7 +20,7 @@ fn impl_struct(input: Struct) -> TokenStream {
     let source_body = if input.attrs.transparent.is_some() {
         let only_field = &input.fields[0].member;
         Some(quote! {
-            std::error::Error::source(self.#only_field.as_dyn_error())
+            core2::error::Error::source(self.#only_field.as_dyn_error())
         })
     } else if let Some(source_field) = input.source_field() {
         let source = &source_field.member;
@@ -31,15 +31,15 @@ fn impl_struct(input: Struct) -> TokenStream {
         };
         let dyn_error = quote_spanned!(source.span()=> self.#source #asref.as_dyn_error());
         Some(quote! {
-            std::option::Option::Some(#dyn_error)
+            core::option::Option::Some(#dyn_error)
         })
     } else {
         None
     };
     let source_method = source_body.map(|body| {
         quote! {
-            fn source(&self) -> std::option::Option<&(dyn std::error::Error + 'static)> {
-                use thiserror::private::AsDynError;
+            fn source(&self) -> core::option::Option<&(dyn core2::error::Error + 'static)> {
+                use thiserror_core2::private::AsDynError;
                 #body
             }
         }
@@ -64,11 +64,11 @@ fn impl_struct(input: Struct) -> TokenStream {
                 }
             } else {
                 quote! {
-                    std::option::Option::Some(#source_backtrace.unwrap_or(&self.#backtrace))
+                    core::option::Option::Some(#source_backtrace.unwrap_or(&self.#backtrace))
                 }
             };
             quote! {
-                use thiserror::private::AsDynError;
+                use thiserror_core2::private::AsDynError;
                 #combinator
             }
         } else if type_is_option(backtrace_field.ty) {
@@ -77,11 +77,11 @@ fn impl_struct(input: Struct) -> TokenStream {
             }
         } else {
             quote! {
-                std::option::Option::Some(&self.#backtrace)
+                core::option::Option::Some(&self.#backtrace)
             }
         };
         quote! {
-            fn backtrace(&self) -> std::option::Option<&std::backtrace::Backtrace> {
+            fn backtrace(&self) -> core::option::Option<&core::backtrace::Backtrace> {
                 #body
             }
         }
@@ -90,13 +90,16 @@ fn impl_struct(input: Struct) -> TokenStream {
     let display_body = if input.attrs.transparent.is_some() {
         let only_field = &input.fields[0].member;
         Some(quote! {
-            std::fmt::Display::fmt(&self.#only_field, __formatter)
+            core::fmt::Display::fmt(&self.#only_field, __formatter)
         })
     } else if let Some(display) = &input.attrs.display {
         let use_as_display = if display.has_bonus_display {
             Some(quote! {
                 #[allow(unused_imports)]
-                use thiserror::private::{DisplayAsDisplay, PathAsDisplay};
+                use thiserror_core2::private::DisplayAsDisplay;
+                #[allow(unused_imports)]
+                #[cfg(feature = "std")]
+                use thiserror_core2::private::PathAsDisplay;
             })
         } else {
             None
@@ -114,9 +117,9 @@ fn impl_struct(input: Struct) -> TokenStream {
     let display_impl = display_body.map(|body| {
         quote! {
             #[allow(unused_qualifications)]
-            impl #impl_generics std::fmt::Display for #ty #ty_generics #where_clause {
+            impl #impl_generics core::fmt::Display for #ty #ty_generics #where_clause {
                 #[allow(clippy::used_underscore_binding)]
-                fn fmt(&self, __formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                fn fmt(&self, __formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
                     #body
                 }
             }
@@ -129,7 +132,7 @@ fn impl_struct(input: Struct) -> TokenStream {
         let body = from_initializer(from_field, backtrace_field);
         quote! {
             #[allow(unused_qualifications)]
-            impl #impl_generics std::convert::From<#from> for #ty #ty_generics #where_clause {
+            impl #impl_generics core::convert::From<#from> for #ty #ty_generics #where_clause {
                 #[allow(deprecated)]
                 fn from(source: #from) -> Self {
                     #ty #body
@@ -160,7 +163,7 @@ fn impl_enum(input: Enum) -> TokenStream {
             let ident = &variant.ident;
             if variant.attrs.transparent.is_some() {
                 let only_field = &variant.fields[0].member;
-                let source = quote!(std::error::Error::source(transparent.as_dyn_error()));
+                let source = quote!(core2::error::Error::source(transparent.as_dyn_error()));
                 quote! {
                     #ty::#ident {#only_field: transparent} => #source,
                 }
@@ -173,17 +176,17 @@ fn impl_enum(input: Enum) -> TokenStream {
                 };
                 let dyn_error = quote_spanned!(source.span()=> source #asref.as_dyn_error());
                 quote! {
-                    #ty::#ident {#source: source, ..} => std::option::Option::Some(#dyn_error),
+                    #ty::#ident {#source: source, ..} => core::option::Option::Some(#dyn_error),
                 }
             } else {
                 quote! {
-                    #ty::#ident {..} => std::option::Option::None,
+                    #ty::#ident {..} => core::option::Option::None,
                 }
             }
         });
         Some(quote! {
-            fn source(&self) -> std::option::Option<&(dyn std::error::Error + 'static)> {
-                use thiserror::private::AsDynError;
+            fn source(&self) -> core::option::Option<&(dyn core2::error::Error + 'static)> {
+                use thiserror_core2::private::AsDynError;
                 #[allow(deprecated)]
                 match self {
                     #(#arms)*
@@ -218,7 +221,7 @@ fn impl_enum(input: Enum) -> TokenStream {
                         }
                     } else {
                         quote! {
-                            std::option::Option::Some(#source_backtrace.unwrap_or(backtrace))
+                            core::option::Option::Some(#source_backtrace.unwrap_or(backtrace))
                         }
                     };
                     quote! {
@@ -227,7 +230,7 @@ fn impl_enum(input: Enum) -> TokenStream {
                             #source: source,
                             ..
                         } => {
-                            use thiserror::private::AsDynError;
+                            use thiserror_core2::private::AsDynError;
                             #combinator
                         }
                     }
@@ -237,19 +240,19 @@ fn impl_enum(input: Enum) -> TokenStream {
                     let body = if type_is_option(backtrace_field.ty) {
                         quote!(backtrace.as_ref())
                     } else {
-                        quote!(std::option::Option::Some(backtrace))
+                        quote!(core::option::Option::Some(backtrace))
                     };
                     quote! {
                         #ty::#ident {#backtrace: backtrace, ..} => #body,
                     }
                 }
                 (None, _) => quote! {
-                    #ty::#ident {..} => std::option::Option::None,
+                    #ty::#ident {..} => core::option::Option::None,
                 },
             }
         });
         Some(quote! {
-            fn backtrace(&self) -> std::option::Option<&std::backtrace::Backtrace> {
+            fn backtrace(&self) -> core::option::Option<&core::backtrace::Backtrace> {
                 #[allow(deprecated)]
                 match self {
                     #(#arms)*
@@ -269,7 +272,10 @@ fn impl_enum(input: Enum) -> TokenStream {
         }) {
             Some(quote! {
                 #[allow(unused_imports)]
-                use thiserror::private::{DisplayAsDisplay, PathAsDisplay};
+                use thiserror_core2::private::DisplayAsDisplay;
+                #[allow(unused_imports)]
+                #[cfg(feature = "std")]
+                use thiserror_core2::private::PathAsDisplay;
             })
         } else {
             None
@@ -287,7 +293,7 @@ fn impl_enum(input: Enum) -> TokenStream {
                         Member::Named(ident) => ident.clone(),
                         Member::Unnamed(index) => format_ident!("_{}", index),
                     };
-                    quote!(std::fmt::Display::fmt(#only_field, __formatter))
+                    quote!(core::fmt::Display::fmt(#only_field, __formatter))
                 }
             };
             let ident = &variant.ident;
@@ -298,8 +304,8 @@ fn impl_enum(input: Enum) -> TokenStream {
         });
         Some(quote! {
             #[allow(unused_qualifications)]
-            impl #impl_generics std::fmt::Display for #ty #ty_generics #where_clause {
-                fn fmt(&self, __formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            impl #impl_generics core::fmt::Display for #ty #ty_generics #where_clause {
+                fn fmt(&self, __formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
                     #use_as_display
                     #[allow(unused_variables, deprecated, clippy::used_underscore_binding)]
                     match #void_deref self {
@@ -320,7 +326,7 @@ fn impl_enum(input: Enum) -> TokenStream {
         let body = from_initializer(from_field, backtrace_field);
         Some(quote! {
             #[allow(unused_qualifications)]
-            impl #impl_generics std::convert::From<#from> for #ty #ty_generics #where_clause {
+            impl #impl_generics core::convert::From<#from> for #ty #ty_generics #where_clause {
                 #[allow(deprecated)]
                 fn from(source: #from) -> Self {
                     #ty::#variant #body
@@ -363,11 +369,11 @@ fn from_initializer(from_field: &Field, backtrace_field: Option<&Field>) -> Toke
         let backtrace_member = &backtrace_field.member;
         if type_is_option(backtrace_field.ty) {
             quote! {
-                #backtrace_member: std::option::Option::Some(std::backtrace::Backtrace::capture()),
+                #backtrace_member: core::option::Option::Some(core::backtrace::Backtrace::capture()),
             }
         } else {
             quote! {
-                #backtrace_member: std::convert::From::from(std::backtrace::Backtrace::capture()),
+                #backtrace_member: core::convert::From::from(core::backtrace::Backtrace::capture()),
             }
         }
     });
@@ -408,7 +414,7 @@ fn spanned_error_trait(input: &DeriveInput) -> TokenStream {
     };
     let first_span = vis_span.unwrap_or(data_span);
     let last_span = input.ident.span();
-    let path = quote_spanned!(first_span=> std::error::);
+    let path = quote_spanned!(first_span=> core2::error::);
     let error = quote_spanned!(last_span=> Error);
     quote!(#path #error)
 }

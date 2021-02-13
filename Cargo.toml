@@ -1,23 +1,29 @@
 [package]
-name = "thiserror"
+name = "thiserror_core2"
 version = "1.0.23"
-authors = ["David Tolnay <dtolnay@gmail.com>"]
+authors = ["David Tolnay <dtolnay@gmail.com>", "Brendan Molloy <brendan@bbqsrc.net>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
-description = "derive(Error)"
-repository = "https://github.com/dtolnay/thiserror"
-documentation = "https://docs.rs/thiserror"
+description = "derive(Error) (no_std-enabled using core2)"
+repository = "https://github.com/bbqsrc/thiserror-core2"
+documentation = "https://docs.rs/thiserror_core2"
 categories = ["rust-patterns"]
 readme = "README.md"
 
 [dependencies]
 thiserror-impl = { version = "=1.0.23", path = "impl" }
+core2 = { path = "../core2", default-features = false }
 
 [dev-dependencies]
 anyhow = "1.0"
 ref-cast = "1.0"
 rustversion = "1.0"
 trybuild = { version = "1.0.19", features = ["diff"] }
+
+[features]
+# default = ["std"]
+default = []
+std = [] # "core2/std"]
 
 [workspace]
 members = ["impl"]

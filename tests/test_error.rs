@@ -1,9 +1,9 @@
 #![deny(clippy::all, clippy::pedantic)]
 #![allow(dead_code)]
 
-use std::fmt::{self, Display};
-use std::io;
-use thiserror::Error;
+use core::fmt::{self, Display};
+use core2::io;
+use thiserror_core2::Error;
 
 macro_rules! unimplemented_display {
     ($ty:ty) => {
@@ -33,11 +33,11 @@ struct WithSource {
     cause: io::Error,
 }
 
-#[derive(Error, Debug)]
-struct WithAnyhow {
-    #[source]
-    cause: anyhow::Error,
-}
+// #[derive(Error, Debug)]
+// struct WithAnyhow {
+//     #[source]
+//     cause: anyhow::Error,
+// }
 
 #[derive(Error, Debug)]
 enum EnumError {
@@ -53,5 +53,5 @@ unimplemented_display!(BracedError);
 unimplemented_display!(TupleError);
 unimplemented_display!(UnitError);
 unimplemented_display!(WithSource);
-unimplemented_display!(WithAnyhow);
+// unimplemented_display!(WithAnyhow);
 unimplemented_display!(EnumError);

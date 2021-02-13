@@ -16,8 +16,8 @@
 //! # Example
 //!
 //! ```rust
-//! # use std::io;
-//! use thiserror::Error;
+//! # use core2::io;
+//! use thiserror_core2::Error;
 //!
 //! #[derive(Error, Debug)]
 //! pub enum DataStoreError {
@@ -63,7 +63,7 @@
 //!
 //!   ```rust
 //!   # use std::i32;
-//!   # use thiserror::Error;
+//!   # use thiserror_core2::Error;
 //!   #
 //!   #[derive(Error, Debug)]
 //!   pub enum Error {
@@ -77,7 +77,7 @@
 //!   as `.0`.
 //!
 //!   ```rust
-//!   # use thiserror::Error;
+//!   # use thiserror_core2::Error;
 //!   #
 //!   # fn first_char(s: &String) -> char {
 //!   #     s.chars().next().unwrap()
@@ -130,13 +130,14 @@
 //!
 //!   ```rust
 //!   # use std::fmt::{self, Display};
-//!   # use thiserror::Error;
+//!   # use thiserror_core2::Error;
+//!   # use core2::io::Error;
 //!   #
 //!   #[derive(Error, Debug)]
 //!   pub struct MyError {
 //!       msg: String,
 //!       #[source]  // optional if field name is `source`
-//!       source: anyhow::Error,
+//!       source: Error,
 //!   }
 //!   #
 //!   # impl Display for MyError {
@@ -167,7 +168,8 @@
 //!   "anything else" variant.
 //!
 //!   ```
-//!   # use thiserror::Error;
+//!   # use thiserror_core2::Error;
+//!   # use core2::io::Error;
 //!   #
 //!   #[derive(Error, Debug)]
 //!   pub enum MyError {
@@ -176,15 +178,11 @@
 //!       # */
 //!
 //!       #[error(transparent)]
-//!       Other(#[from] anyhow::Error),  // source and Display delegate to anyhow::Error
+//!       Other(#[from] Error),  // source and Display delegate to Error
 //!   }
 //!   ```
-//!
-//! - See also the [`anyhow`] library for a convenient single error type to use
-//!   in application code.
-//!
-//!   [`anyhow`]: https://github.com/dtolnay/anyhow
 
+#![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::module_name_repetitions)]
 
 mod aserror;
@@ -196,5 +194,8 @@ pub use thiserror_impl::*;
 #[doc(hidden)]
 pub mod private {
     pub use crate::aserror::AsDynError;
-    pub use crate::display::{DisplayAsDisplay, PathAsDisplay};
+    pub use crate::display::DisplayAsDisplay;
+    
+    #[cfg(feature = "std")]
+    pub use crate::display::PathAsDisplay;
 }
