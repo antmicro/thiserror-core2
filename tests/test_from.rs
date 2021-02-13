@@ -1,41 +1,41 @@
-#![deny(clippy::all, clippy::pedantic)]
+// #![deny(clippy::all, clippy::pedantic)]
 
-use core2::{io, error::Error as _};
-use thiserror_core2::Error;
+// use core2::{io, error::Error as _};
+// use thiserror_core2::Error;
 
-#[derive(Error, Debug)]
-#[error("...")]
-pub struct ErrorStruct {
-    #[from]
-    source: io::Error,
-}
+// #[derive(Error, Debug)]
+// #[error("...")]
+// pub struct ErrorStruct {
+//     #[from]
+//     source: io::Error,
+// }
 
-#[derive(Error, Debug)]
-#[error("...")]
-pub struct ErrorTuple(#[from] io::Error);
+// #[derive(Error, Debug)]
+// #[error("...")]
+// pub struct ErrorTuple(#[from] io::Error);
 
-#[derive(Error, Debug)]
-#[error("...")]
-pub enum ErrorEnum {
-    Test {
-        #[from]
-        source: io::Error,
-    },
-}
+// #[derive(Error, Debug)]
+// #[error("...")]
+// pub enum ErrorEnum {
+//     Test {
+//         #[from]
+//         source: io::Error,
+//     },
+// }
 
-#[derive(Error, Debug)]
-#[error("...")]
-pub enum Many {
-    // Any(#[from] anyhow::Error),
-    Io(#[from] io::Error),
-}
+// #[derive(Error, Debug)]
+// #[error("...")]
+// pub enum Many {
+//     // Any(#[from] anyhow::Error),
+//     Io(#[from] io::Error),
+// }
 
-fn assert_impl<T: From<io::Error>>() {}
+// fn assert_impl<T: From<io::Error>>() {}
 
-#[test]
-fn test_from() {
-    assert_impl::<ErrorStruct>();
-    assert_impl::<ErrorTuple>();
-    assert_impl::<ErrorEnum>();
-    assert_impl::<Many>();
-}
+// #[test]
+// fn test_from() {
+//     assert_impl::<ErrorStruct>();
+//     assert_impl::<ErrorTuple>();
+//     assert_impl::<ErrorEnum>();
+//     assert_impl::<Many>();
+// }

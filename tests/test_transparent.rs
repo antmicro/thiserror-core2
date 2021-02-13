@@ -5,29 +5,29 @@ use core2::error::Error as _;
 use core2::io;
 use thiserror_core2::Error;
 
-#[test]
-fn test_transparent_struct() {
-    #[derive(Error, Debug)]
-    #[error(transparent)]
-    struct Error(ErrorKind);
+// #[test]
+// fn test_transparent_struct() {
+//     #[derive(Error, Debug)]
+//     #[error(transparent)]
+//     struct Error(ErrorKind);
 
-    #[derive(Error, Debug)]
-    enum ErrorKind {
-        #[error("E0")]
-        E0,
-        #[error("E1")]
-        E1(#[from] io::Error),
-    }
+//     #[derive(Error, Debug)]
+//     enum ErrorKind {
+//         #[error("E0")]
+//         E0,
+//         #[error("E1")]
+//         E1(#[from] io::Error),
+//     }
 
-    let error = Error(ErrorKind::E0);
-    assert_eq!("E0", error.to_string());
-    assert!(error.source().is_none());
+//     let error = Error(ErrorKind::E0);
+//     assert_eq!("E0", error.to_string());
+//     assert!(error.source().is_none());
 
-    let io = io::Error::new(io::ErrorKind::Other, "oh no!");
-    let error = Error(ErrorKind::from(io));
-    assert_eq!("E1", error.to_string());
-    error.source().unwrap().downcast_ref::<io::Error>().unwrap();
-}
+//     let io = io::Error::new(io::ErrorKind::Other, "oh no!");
+//     let error = Error(ErrorKind::from(io));
+//     assert_eq!("E1", error.to_string());
+//     error.source().unwrap().downcast_ref::<io::Error>().unwrap();
+// }
 
 // #[test]
 // fn test_transparent_enum() {

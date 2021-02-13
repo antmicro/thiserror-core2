@@ -27,11 +27,11 @@ struct TupleError(String, usize);
 #[derive(Error, Debug)]
 struct UnitError;
 
-#[derive(Error, Debug)]
-struct WithSource {
-    #[source]
-    cause: io::Error,
-}
+// #[derive(Error, Debug)]
+// struct WithSource {
+//     #[source]
+//     cause: io::Error,
+// }
 
 // #[derive(Error, Debug)]
 // struct WithAnyhow {
@@ -39,19 +39,19 @@ struct WithSource {
 //     cause: anyhow::Error,
 // }
 
-#[derive(Error, Debug)]
-enum EnumError {
-    Braced {
-        #[source]
-        cause: io::Error,
-    },
-    Tuple(#[source] io::Error),
-    Unit,
-}
+// #[derive(Error, Debug)]
+// enum EnumError {
+//     Braced {
+//         #[source]
+//         cause: io::Error,
+//     },
+//     Tuple(#[source] io::Error),
+//     Unit,
+// }
 
 unimplemented_display!(BracedError);
 unimplemented_display!(TupleError);
 unimplemented_display!(UnitError);
-unimplemented_display!(WithSource);
+// unimplemented_display!(WithSource);
 // unimplemented_display!(WithAnyhow);
-unimplemented_display!(EnumError);
+// unimplemented_display!(EnumError);
