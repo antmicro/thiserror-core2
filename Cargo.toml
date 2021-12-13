@@ -12,7 +12,7 @@ readme = "README.md"
 
 [dependencies]
 thiserror-impl = { version = "=1.0.23", path = "impl" }
-core2 = { version = "0.3.0-alpha.1", default-features = false }
+core2 = { version = "0.3.3", default-features = false }
 
 [dev-dependencies]
 anyhow = "1.0"
